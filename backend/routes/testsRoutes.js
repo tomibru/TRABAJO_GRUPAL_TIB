@@ -5,7 +5,7 @@
 * Date        : Marzo 2026
 */
 
-const express = require('express');
+const  = require('express');
 const router = express.Router();
 /**
  * Módulo/Biblioteca para el manejo de rutas:
