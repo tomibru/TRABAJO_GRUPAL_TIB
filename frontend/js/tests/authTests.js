@@ -47,20 +47,15 @@ testUtils.createTestButton("Test Login - Usuario Incorrecto (Juan y 12345)", asy
 });
 
 testUtils.createTestButton("Test Registro - Contraseña Corta", async (btn) => {
-    const payload = {
-        username: 'pepe',
-        password: '1'
-    };
-
     const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ username: 'pepe', password: '1' })
     });
 
     const data = await response.json();
     
-    testUtils.log(data, !response.ok);
+    testUtils.log(data);
 
     if (response.status === 400) {
         testUtils.setSuccess(btn);
