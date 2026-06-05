@@ -58,7 +58,7 @@ testUtils.createTestButton("Eliminación de Recurso Ajeno", async(btn)=>{
     const data = await response.json();
     const token = data.token;
 
-    const deleteRequest = await fetch('/api/samples/1',{
+    const deleteRequest = await fetch('/api/samples/secure/1',{
         method: 'DELETE' ,
         headers: {'Authorization' : 'Bearer ' + token}
     });
