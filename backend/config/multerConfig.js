@@ -37,7 +37,10 @@ const fileFilter = (req, file, cb) => {
     }
     else
     {
-        cb(new Error('Invalid file type. Only MP3, WAV, OGG and FLAC are allowed.'), false);
+        //Creamos el error
+        const error = new Error('El archivo no es un audio válido.');
+        error.code = 'INVALID_MIME_TYPE';
+        cb(error, false);
     }
 };
 
