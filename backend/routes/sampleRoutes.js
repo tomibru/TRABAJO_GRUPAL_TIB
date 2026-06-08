@@ -19,7 +19,17 @@ router.use(verifyToken);
 
 // Subir un nuevo audio: POST /api/samples/upload
 // 'audioFile' es el nombre que debe tener el campo file en el FormData del frontend
-router.post('/upload', uploadMiddleware, sampleController.uploadSample);
+router.post('/upload', (req, res, next) => {
+    uploadMiddleware(req, res, (err) => {
+        if (err && err.code === 'INVALID_MIME_TYPE') {
+            return res.status(415).json({ message: 'El archivo no es un audio válido.' });
+        }
+        if (err) {
+            return res.status(400).json({ message: err.message });
+        }
+        next();
+    });
+}, sampleController.uploadSample);
 
 // Listar mis samples: GET /api/samples/my-samples
 router.get('/my-samples', sampleController.getMySamples);
