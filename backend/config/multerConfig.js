@@ -37,11 +37,18 @@ const fileFilter = (req, file, cb) => {
     }
     else
     {
-        cb(new Error('Invalid file type. Only MP3, WAV, OGG and FLAC are allowed.'), false);
+        //Creamos el error
+        const error = new Error('El archivo no es un audio válido.');
+        error.code = 'INVALID_MIME_TYPE';
+        cb(error, false);
     }
 };
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ 
+    storage, 
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 }
+});
 
 // 'audioFile' es el nombre del campo en el formulario
 module.exports = upload.single('audioFile');

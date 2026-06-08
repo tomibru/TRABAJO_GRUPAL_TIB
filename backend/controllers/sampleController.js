@@ -21,13 +21,24 @@ class SampleController
                 return res.status(400).json({ message: "No se subió ningún archivo o el formato es inválido." });
             }
 
-            const { display_name, category, bpm } = req.body;
+            //Agarrar los datos que mando el formulario del front, entre esos datos viene el bpm que escribio el usuario
+            const { display_name, category, bpm } = req.body; 
             
             if (!display_name || !category) {
                 // Si faltan datos, eliminamos el archivo físico para no dejar basura (Storage Efficiency)
                 fileHelper.deleteFile(`/uploads/${req.file.filename}`);
                 return res.status(400).json({ message: "El nombre y la categoría son obligatorios." });
             }
+
+            // Validación de BPM (Validación #6)
+
+            const bpmNum = Number(bpm); //El BPM que llega del formulario es texto, lo convertimos a numero, en el caso q no se pueda devuelve NaN("Not a Number")
+            if (bpm !== '' && bpm !== undefined) { //El BPM es opcional, solo validamos si el usuario ingreso algo
+                if (isNaN(bpmNum) || bpmNum < 20 || bpmNum > 300) { //Si no es nro o es ilogico para la musica <20 >300.
+                    fileHelper.deleteFile(`/uploads/${req.file.filename}`); //Borra el archivo (FISICO) que cargo el Multer
+                    return res.status(400).json({ message: "BPM inválido. Ingrese un valor numérico correcto" }); // devolvemos 400(Bad Request) y mensaje al front
+                }
+            }       
 
             const userId = req.userId; // Proveniente del verifyToken
             const filename = req.file.filename;
