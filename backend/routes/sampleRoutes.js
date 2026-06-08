@@ -38,6 +38,9 @@ router.post('/upload', (req, res, next) => {
 // Listar mis samples: GET /api/samples/my-samples
 router.get('/my-samples', sampleController.getMySamples);
 
+// Eliminar un sample con validación de propietario: DELETE /api/samples/secure/:id
+router.delete('/secure/:id', sampleController.deleteSampleSecure);
+
 // Eliminar un sample: DELETE /api/samples/:id
 router.delete('/:id', sampleController.deleteSample);
 

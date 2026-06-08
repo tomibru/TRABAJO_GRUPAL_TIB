@@ -1,3 +1,5 @@
+/*const test = require("node:test");*/
+
 /**
  * Test: POST /api/auth/login
  */
@@ -47,6 +49,28 @@ testUtils.createTestButton("Test Login - Usuario Incorrecto (Juan y 12345)", asy
     }
 });
 
+testUtils.createTestButton("Eliminación de Recurso Ajeno", async(btn)=>{
+    const response = await fetch('/api/auth/login',{
+        method: 'POST',
+        headers: {'Content-Type' : 'application/json'},
+        body: JSON.stringify({username: 'admin', password: '12345'})
+    });
+
+    const data = await response.json();
+    const token = data.token;
+
+    const deleteRequest = await fetch('/api/samples/secure/1',{
+        method: 'DELETE' ,
+        headers: {'Authorization' : 'Bearer ' + token}
+    });
+
+    if(deleteRequest.status == 403){
+        testUtils.setSuccess(btn);
+    }
+
+    const deleteData = await deleteRequest.json();
+    testUtils.log(deleteData);
+});
 testUtils.createTestButton("Test Registro - Contraseña Corta", async (btn) => {
     const response = await fetch('/api/auth/register', {
         method: 'POST',

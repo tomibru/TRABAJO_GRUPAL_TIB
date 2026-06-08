@@ -1,3 +1,5 @@
+const { stringify } = require("node:querystring");
+
 /**
  * Función para asegurar independencia de los tests de samples 
  * y no depender de otro test para tener un token de sesión válido

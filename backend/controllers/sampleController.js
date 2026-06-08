@@ -85,7 +85,7 @@ class SampleController
     }
 
     // Eliminar un sample de la biblioteca
-    async deleteSample(req, res) 
+     async deleteSample(req, res) 
     {
         try 
         {
@@ -97,6 +97,42 @@ class SampleController
             
             if (!sample) {
                 return res.status(404).json({ message: "El sample no existe o no tienes permisos para eliminarlo." });
+            }
+
+            // 2. Ejecutar sp_delete_sample en la base de datos
+            await sampleRepo.delete(id, userId);
+
+            // 3. Eliminación física del archivo (Gestión de recursos)
+            fileHelper.deleteFile(sample.file_path); 
+            
+            return res.json({ message: "Registro eliminado y archivo físico removido con éxito." });
+        }
+        catch (error)
+        {
+            res.status(500).json({ message: "Error al eliminar el sample.", error: error.message });
+        }
+    }
+
+
+
+
+    async deleteSampleSecure(req, res) 
+    {
+        try 
+        {
+            const { id } = req.params;
+            const userId = req.userId;
+
+            // 1. Obtener metadatos para conocer la ruta del archivo físico
+            const sample = await sampleRepo.findByIdOnly(id);
+            
+            if (!sample) {
+                return res.status(404).json({ message: "El sample no existe" });
+            }
+            else{
+                if (sample.user_id !== userId){
+                    return res.status(403).json({ message: "No tienes permisos para alterar este archivo" })
+                }
             }
 
             // 2. Ejecutar sp_delete_sample en la base de datos
