@@ -47,6 +47,27 @@ testUtils.createTestButton("Test Login - Usuario Incorrecto (Juan y 12345)", asy
     }
 });
 
+testUtils.createTestButton("Test Registro - Contraseña Corta", async (btn) => {
+    const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'pepe', password: '1' })
+    });
+
+    const data = await response.json();
+    
+    testUtils.log(data);
+
+    if (response.status === 400) {
+        testUtils.setSuccess(btn);
+    } else {
+        btn.className = "w3-button w3-block w3-section w3-round w3-red";
+        testUtils.log({
+            error: `Se esperaba HTTP 400 (Bad Request), pero el servidor respondió HTTP ${response.status}`,
+            respuestaServidor: data
+        }, true);
+    }
+});
 
 // TEST #4 - Subida con tipo MIME inválido (debe responder 415)
 testUtils.createTestButton("Test #4 - Archivo .wav falso (MIME inválido)", async (btn) => {
