@@ -21,6 +21,10 @@ router.use(verifyToken);
 // 'audioFile' es el nombre que debe tener el campo file en el FormData del frontend
 router.post('/upload', (req, res, next) => {
     uploadMiddleware(req, res, (err) => {
+        if (err && err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({ message: "El archivo supera el limite de tamaño permitido." });
+        }
+        next(err);
         if (err && err.code === 'INVALID_MIME_TYPE') {
             return res.status(415).json({ message: 'El archivo no es un audio válido.' });
         }
