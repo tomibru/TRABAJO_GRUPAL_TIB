@@ -119,3 +119,31 @@ testUtils.createTestButton("Test #4 - Archivo .wav falso (MIME inválido)", asyn
         testUtils.setSuccess(btn);
     }
 });
+
+//FACU
+
+testUtils.createTestButton("Test Subida - Límite de Peso (HTTP 413)", async (btn) => {
+    await okLogin();
+    const token = localStorage.getItem('test_token');
+
+    const bigBlob = new Blob([new Uint8Array(6 * 1024 * 1024)], { type: 'audio/wav' }); //Generamos archivo de peso mayor a 5 MB para la prueba
+
+    const formData = new FormData(); //Genero la const con el archivo y sus atributos
+    formData.append('display_name', 'Test Peso');
+    formData.append('category', 'Drums');
+    formData.append('bpm', '120');
+    formData.append('audioFile', bigBlob, 'archivo_pesado.wav');
+
+    const response = await fetch('/api/samples/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+    }); //Le envio la const al servidor para q responda con el codigo HTTP y mensaje
+
+    const data = await response.json();
+    testUtils.log(data);
+
+    if (response.status === 413 && data.message === "El archivo supera el limite de tamaño permitido.") {
+        testUtils.setSuccess(btn);
+    }//Si devuelve el codigo HTTP 413 y el mensaje que se toma arriba se considera el test como exitoso y se pone al boton verde
+});
