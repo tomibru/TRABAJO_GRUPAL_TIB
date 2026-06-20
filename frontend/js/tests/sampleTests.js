@@ -64,6 +64,16 @@ testUtils.createTestButton("Test Subir Sample (Simulado)", async (btn) => {
     if (response.ok) testUtils.setSuccess(btn);
 });
 
+
+// TEST #4 - Subida con tipo MIME inválido (debe responder 415)
+testUtils.createTestButton("Test #4 - Archivo .wav falso (MIME inválido)", async (btn) => {
+
+    await okLogin();
+    const token = localStorage.getItem('test_token');
+
+    const fakeContent = new Blob(['esto es texto, no audio'], { type: 'text/plain' });
+    const fakeFile = new File([fakeContent], 'trampa.wav', { type: 'text/plain' });
+
 // TEST #4 - Subida con tipo MIME inválido (debe responder 415)
 testUtils.createTestButton("Test #4 - Archivo .wav falso (MIME inválido)", async (btn) => {
 
