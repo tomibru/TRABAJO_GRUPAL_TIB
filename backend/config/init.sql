@@ -153,5 +153,11 @@ BEGIN
     DELETE FROM samples WHERE id = p_id AND user_id = p_user_id;
 END //
 
+-- AGREGO SP QUE BUSQUE POR ID SOLO
+CREATE PROCEDURE sp_find_sample_by_id_only(IN p_id INT)
+BEGIN
+    SELECT * FROM samples WHERE id = p_id;
+END //
+
 DELIMITER ;
 SET foreign_key_checks = 1;

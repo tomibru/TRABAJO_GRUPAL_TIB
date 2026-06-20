@@ -34,6 +34,12 @@ class SampleRepository
         return rows[0][0]; 
     }
 
+    async findByIdOnly(id)
+    {
+        const [rows] = await db.execute('CALL sp_find_sample_by_id_only(?)', [id]);
+        return rows[0][0];
+    }
+
     // Eliminar un sample validando la propiedad del mismo
     async delete(id, userId) 
     {

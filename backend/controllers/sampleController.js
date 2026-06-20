@@ -21,13 +21,24 @@ class SampleController
                 return res.status(400).json({ message: "No se subió ningún archivo o el formato es inválido." });
             }
 
-            const { display_name, category, bpm } = req.body;
+            //Agarrar los datos que mando el formulario del front, entre esos datos viene el bpm que escribio el usuario
+            const { display_name, category, bpm } = req.body; 
             
             if (!display_name || !category) {
                 // Si faltan datos, eliminamos el archivo físico para no dejar basura (Storage Efficiency)
                 fileHelper.deleteFile(`/uploads/${req.file.filename}`);
                 return res.status(400).json({ message: "El nombre y la categoría son obligatorios." });
             }
+
+            // Validación de BPM (Validación #6)
+
+            const bpmNum = Number(bpm); //El BPM que llega del formulario es texto, lo convertimos a numero, en el caso q no se pueda devuelve NaN("Not a Number")
+            if (bpm !== '' && bpm !== undefined) { //El BPM es opcional, solo validamos si el usuario ingreso algo
+                if (isNaN(bpmNum) || bpmNum < 20 || bpmNum > 300) { //Si no es nro o es ilogico para la musica <20 >300.
+                    fileHelper.deleteFile(`/uploads/${req.file.filename}`); //Borra el archivo (FISICO) que cargo el Multer
+                    return res.status(400).json({ message: "BPM inválido. Ingrese un valor numérico correcto" }); // devolvemos 400(Bad Request) y mensaje al front
+                }
+            }       
 
             const userId = req.userId; // Proveniente del verifyToken
             const filename = req.file.filename;
@@ -74,7 +85,7 @@ class SampleController
     }
 
     // Eliminar un sample de la biblioteca
-    async deleteSample(req, res) 
+     async deleteSample(req, res) 
     {
         try 
         {
@@ -86,6 +97,42 @@ class SampleController
             
             if (!sample) {
                 return res.status(404).json({ message: "El sample no existe o no tienes permisos para eliminarlo." });
+            }
+
+            // 2. Ejecutar sp_delete_sample en la base de datos
+            await sampleRepo.delete(id, userId);
+
+            // 3. Eliminación física del archivo (Gestión de recursos)
+            fileHelper.deleteFile(sample.file_path); 
+            
+            return res.json({ message: "Registro eliminado y archivo físico removido con éxito." });
+        }
+        catch (error)
+        {
+            res.status(500).json({ message: "Error al eliminar el sample.", error: error.message });
+        }
+    }
+
+
+
+
+    async deleteSampleSecure(req, res) 
+    {
+        try 
+        {
+            const { id } = req.params;
+            const userId = req.userId;
+
+            // 1. Obtener metadatos para conocer la ruta del archivo físico
+            const sample = await sampleRepo.findByIdOnly(id);
+            
+            if (!sample) {
+                return res.status(404).json({ message: "El sample no existe" });
+            }
+            else{
+                if (sample.user_id !== userId){
+                    return res.status(403).json({ message: "No tienes permisos para alterar este archivo" })
+                }
             }
 
             // 2. Ejecutar sp_delete_sample en la base de datos

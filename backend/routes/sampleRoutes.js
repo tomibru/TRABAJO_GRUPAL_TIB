@@ -21,6 +21,10 @@ router.use(verifyToken);
 // 'audioFile' es el nombre que debe tener el campo file en el FormData del frontend
 router.post('/upload', (req, res, next) => {
     uploadMiddleware(req, res, (err) => {
+        if (err && err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({ message: "El archivo supera el limite de tamaño permitido." });
+        }
+       
         if (err && err.code === 'INVALID_MIME_TYPE') {
             return res.status(415).json({ message: 'El archivo no es un audio válido.' });
         }
@@ -33,6 +37,9 @@ router.post('/upload', (req, res, next) => {
 
 // Listar mis samples: GET /api/samples/my-samples
 router.get('/my-samples', sampleController.getMySamples);
+
+// Eliminar un sample con validación de propietario: DELETE /api/samples/secure/:id
+router.delete('/secure/:id', sampleController.deleteSampleSecure);
 
 // Eliminar un sample: DELETE /api/samples/:id
 router.delete('/:id', sampleController.deleteSample);

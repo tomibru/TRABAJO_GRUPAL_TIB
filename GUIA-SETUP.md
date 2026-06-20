@@ -81,9 +81,9 @@ El backend necesita un archivo `.env` para conectarse a MySQL. Sin este archivo 
 ```
 PORT=3000
 DB_HOST=localhost
-DB_USER=samplevaultest
-DB_PASS=samplevaultest
-DB_NAME=samplevaultest
+DB_USER=samplevault
+DB_PASS=samplevault
+DB_NAME=samplevault
 JWT_SECRET=tu_clave_secreta_super_segura
 NODE_ENV=testing
 ```
