@@ -12,7 +12,6 @@
     testUtils.log(data);
 
     if (response.ok) {
-        localStorage.setItem('token', data.token);
         testUtils.setSuccess(btn);
     }
 });
