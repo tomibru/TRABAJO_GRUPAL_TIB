@@ -14,7 +14,6 @@
     testUtils.log(data);
 
     if (response.ok) {
-        localStorage.setItem('token', data.token);
         testUtils.setSuccess(btn);
     }
 });
@@ -50,18 +49,43 @@ testUtils.createTestButton("Test Login - Usuario Incorrecto (Juan y 12345)", asy
 });
 
 testUtils.createTestButton("Eliminación de Recurso Ajeno", async(btn)=>{
-    const response = await fetch('/api/auth/login',{
+    // Primero logueamos como pepe para obtener un token válido
+
+    await okLogin();
+    const pepeToken = localStorage.getItem('test_token');
+
+    // Creamos un FormData
+    const formData = new FormData();
+    formData.append('display_name', 'Test Loop Pedagogico');
+    formData.append('category', 'Drums');
+    formData.append('bpm', '120');
+
+    // Simulamos un archivo WAV (binario vacío para la prueba)
+    const blob = new Blob(["Simulated Audio Content"], { type: 'audio/wav' });
+    formData.append('audioFile', blob, 'DRUM_LOOP_01.wav');
+    // Subimos un sample para asegurarnos de que pepe tiene al menos un recurso propio
+    const uploadResponse = await fetch('/api/samples/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${pepeToken}` },
+        body: formData
+    });
+    const uploadData = await uploadResponse.json();
+    const sampleId = uploadData.id;
+    
+    //Ahora intentamos eliminar un recurso que no nos pertenece
+
+    const adminResponse = await fetch('/api/auth/login',{
         method: 'POST',
         headers: {'Content-Type' : 'application/json'},
         body: JSON.stringify({username: 'admin', password: '12345'})
     });
 
-    const data = await response.json();
-    const token = data.token;
+    const adminData = await adminResponse.json();
+    const adminToken = adminData.token;
 
-    const deleteRequest = await fetch('/api/samples/secure/1',{
+    const deleteRequest = await fetch('/api/samples/secure/' + sampleId,{
         method: 'DELETE' ,
-        headers: {'Authorization' : 'Bearer ' + token}
+        headers: {'Authorization' : 'Bearer ' + adminToken}
     });
 
     if(deleteRequest.status == 403){
@@ -71,6 +95,7 @@ testUtils.createTestButton("Eliminación de Recurso Ajeno", async(btn)=>{
     const deleteData = await deleteRequest.json();
     testUtils.log(deleteData);
 });
+
 testUtils.createTestButton("Test Registro - Contraseña Corta", async (btn) => {
     const response = await fetch('/api/auth/register', {
         method: 'POST',

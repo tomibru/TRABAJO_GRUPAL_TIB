@@ -62,11 +62,11 @@ function renderSamplesTable(samples) {
         tbody.appendChild(row);
     });
 }
-
+//Modifique la ruta de la funcion original para que trabaje con mi funcion deleteSampleSecure
 async function deleteSample(id) {
     if (!confirm('¿Estás seguro de eliminar este sonido?')) return;
     try {
-        await apiService.request(`/samples/${id}`, 'DELETE');
+        await apiService.request(`/samples/secure/${id}`, 'DELETE');
         showModal('Eliminado', 'El sample ha sido borrado.');
         loadSamples();
     } catch (error) {
